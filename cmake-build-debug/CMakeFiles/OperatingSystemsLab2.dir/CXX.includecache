@@ -1,0 +1,22 @@
+#IncludeRegexLine: ^[ 	]*[#%][ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+/home/jbrummet/Dev/OperatingSystemsLab2/container.h
+assert.h
+-
+
+/home/jbrummet/Dev/OperatingSystemsLab2/main.cpp
+iostream
+-
+process.h
+/home/jbrummet/Dev/OperatingSystemsLab2/process.h
+container.h
+/home/jbrummet/Dev/OperatingSystemsLab2/container.h
+
+/home/jbrummet/Dev/OperatingSystemsLab2/process.h
+
