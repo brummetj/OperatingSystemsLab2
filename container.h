@@ -152,23 +152,4 @@ public:
         temp->next = newNode;
         newNode->next = pre->next;
     }
-    void sort_burst(){
-
-        node* curr = NULL;
-        node* next = NULL;
-        bool unsorted = true;
-        while(unsorted){
-            unsorted = false;
-            curr = head;
-            while(curr != NULL){
-                 next = curr->next;
-                if(next->data.get_burst() < curr->data.get_burst()){
-                    curr->next = next->next;
-                    next->next = next;
-                    unsorted = true;
-                }
-                curr = curr->next;
-            }
-        }
-    }
 };

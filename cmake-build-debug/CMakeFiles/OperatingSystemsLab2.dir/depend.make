@@ -5,3 +5,6 @@ CMakeFiles/OperatingSystemsLab2.dir/main.cpp.o: ../container.h
 CMakeFiles/OperatingSystemsLab2.dir/main.cpp.o: ../main.cpp
 CMakeFiles/OperatingSystemsLab2.dir/main.cpp.o: ../process.h
 
+CMakeFiles/OperatingSystemsLab2.dir/process.cpp.o: ../process.cpp
+CMakeFiles/OperatingSystemsLab2.dir/process.cpp.o: ../process.h
+

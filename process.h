@@ -1,163 +1,88 @@
-//Creates Process class 
+//Creates Process class
+//
+// Created by jbrummet on 10/22/17.
+//
 class process {
-private:
-    double arrival_time;
-    int burst_time;
-    int premp_time;
-    int burst_left;
-    bool been_seen;
-    double initial_wait;
-public:
-    double getInitial_wait() const;
 
-    void setInitial_wait(double initial_wait);
+    private:
+        double arrival_time;
+        int burst_time;
+        int premp_time;
+        int burst_left;
+        bool been_seen;
+        double initial_wait;
+        double total_wait;
+        int priority;
+        int pid;
+        double finish_time;
+        bool context_switch;
+        double response_time;
+        double turnaround_time;
+        int num_context_switches;
 
-private:
-    double total_wait;
-    int priority;
-    int pid;
-    double finish_time;
-    bool context_switch;
-public:
-    bool isContext_switch() const;
+    public:
 
-    void setContext_switch(bool context_switch);
+        process() = default;;
 
-public:
-    double getFinish_time() const;
+        process(int _id, int time, int burst, int _priority);
 
-    void setFinish_time(double finish_time);
+        void set_arrival(double time);
 
-public:
+        double get_arrival();
 
-    process() = default;;
+        void set_pid(int num);
 
-    process(int _id, int time, int burst, int _priority);
+        int get_pid();
 
-    void set_arrival(double time);
+        int get_burst();
 
-    void set_pid(int num);
+        void dec_burst();
 
-    double get_arrival();
+        int get_priority();
 
-    int get_burst();
+        int get_burst_left();
 
-    int get_priority();
+        double get_initial_wait();
 
-    int get_burst_left();
+        double get_total_wait();
 
-    void dec_burst();
+        void set_premp_time(int time);
 
-    double get_initial_wait();
+        void add_wait(double time);
 
-    double get_total_wait();
+        bool get_seen();
 
-    void set_premp_time(int time);
+        void seen(double time);
 
-    void add_wait(double time);
+        void ready(){ been_seen = true; }
 
-    bool get_seen();
+        double getInitial_wait() const;
 
-    void ready(){
-        been_seen = true;
-    }
+        void setInitial_wait(double initial_wait);
 
-    void seen(double time);
+        bool isContext_switch() const;
 
-    int get_pid();
+        void setContext_switch(bool context_switch);
+
+        double getFinish_time() const;
+
+        void setFinish_time(double finish_time);
+
+        double getResponse_time() const;
+
+        void setResponse_time(double response_time);
+
+        double getTurnaround_time() const;
+
+        void setTurnaround_time(double turnaround_time);
+
+        void inc_num_context(){
+            num_context_switches++;
+        }
+
+        int get_num_context(){
+            return num_context_switches;
+        }
 };
 
-process::process(int _id, int time, int burst, int _priority) {
-    pid = _id;
-    burst_time = burst;
-    burst_left = burst;
-    arrival_time = time;
-    been_seen = false;
-    priority = _priority;
-    initial_wait = 0;
-    total_wait = 0;
-    context_switch = false;
-}
 
-void process::set_pid(int num) {
-    pid = num;
-}
-
-bool process::get_seen() {
-    return been_seen;
-}
-
-int process::get_priority() {
-    return priority;
-}
-
-int process::get_burst() {
-    return burst_time;
-}
-
-int process::get_pid() {
-    return pid;
-}
-
-void process::set_arrival(double time) {
-    arrival_time = time;
-}
-
-double process::get_arrival() {
-    return arrival_time;
-}
-
-int process::get_burst_left() {
-    return burst_left;
-}
-
-void process::dec_burst() {
-    burst_left = burst_left - 1;
-}
-
-double process::get_initial_wait() {
-    return initial_wait;
-}
-
-double process::get_total_wait() {
-    return total_wait;
-}
-
-void process::set_premp_time(int time) {
-    premp_time = time;
-}
-
-void process::add_wait(double time) {
-    initial_wait += time;
-    total_wait += time;
-}
-
-void process::seen(double time) {
-    been_seen = true;
-    initial_wait = time;
-    total_wait = time;
-}
-
-double process::getFinish_time() const {
-    return finish_time;
-}
-
-void process::setFinish_time(double finish_time) {
-    process::finish_time = finish_time;
-}
-
-bool process::isContext_switch() const {
-    return context_switch;
-}
-
-void process::setContext_switch(bool context_switch) {
-    process::context_switch = context_switch;
-}
-
-double process::getInitial_wait() const {
-    return initial_wait;
-}
-
-void process::setInitial_wait(double initial_wait) {
-    process::initial_wait = initial_wait;
-}

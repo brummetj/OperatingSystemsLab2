@@ -86,6 +86,9 @@
 		<Unit filename="/home/jbrummet/Dev/OperatingSystemsLab2/main.cpp">
 			<Option target="OperatingSystemsLab2"/>
 		</Unit>
+		<Unit filename="/home/jbrummet/Dev/OperatingSystemsLab2/process.cpp">
+			<Option target="OperatingSystemsLab2"/>
+		</Unit>
 		<Unit filename="/home/jbrummet/Dev/OperatingSystemsLab2/process.h">
 			<Option target="OperatingSystemsLab2"/>
 		</Unit>

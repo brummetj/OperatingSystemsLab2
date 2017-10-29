@@ -1,5 +1,6 @@
 file(REMOVE_RECURSE
   "CMakeFiles/OperatingSystemsLab2.dir/main.cpp.o"
+  "CMakeFiles/OperatingSystemsLab2.dir/process.cpp.o"
   "OperatingSystemsLab2.pdb"
   "OperatingSystemsLab2"
 )

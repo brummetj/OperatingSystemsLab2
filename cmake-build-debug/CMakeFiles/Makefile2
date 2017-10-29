@@ -66,7 +66,7 @@ CMAKE_BINARY_DIR = /home/jbrummet/Dev/OperatingSystemsLab2/cmake-build-debug
 CMakeFiles/OperatingSystemsLab2.dir/all:
 	$(MAKE) -f CMakeFiles/OperatingSystemsLab2.dir/build.make CMakeFiles/OperatingSystemsLab2.dir/depend
 	$(MAKE) -f CMakeFiles/OperatingSystemsLab2.dir/build.make CMakeFiles/OperatingSystemsLab2.dir/build
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/jbrummet/Dev/OperatingSystemsLab2/cmake-build-debug/CMakeFiles --progress-num=1,2 "Built target OperatingSystemsLab2"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/jbrummet/Dev/OperatingSystemsLab2/cmake-build-debug/CMakeFiles --progress-num=1,2,3 "Built target OperatingSystemsLab2"
 .PHONY : CMakeFiles/OperatingSystemsLab2.dir/all
 
 # Include target in all.
@@ -76,7 +76,7 @@ all: CMakeFiles/OperatingSystemsLab2.dir/all
 
 # Build rule for subdir invocation for target.
 CMakeFiles/OperatingSystemsLab2.dir/rule: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/jbrummet/Dev/OperatingSystemsLab2/cmake-build-debug/CMakeFiles 2
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/jbrummet/Dev/OperatingSystemsLab2/cmake-build-debug/CMakeFiles 3
 	$(MAKE) -f CMakeFiles/Makefile2 CMakeFiles/OperatingSystemsLab2.dir/all
 	$(CMAKE_COMMAND) -E cmake_progress_start /home/jbrummet/Dev/OperatingSystemsLab2/cmake-build-debug/CMakeFiles 0
 .PHONY : CMakeFiles/OperatingSystemsLab2.dir/rule

@@ -1,1 +1,1 @@
-/usr/bin/c++  -g   CMakeFiles/OperatingSystemsLab2.dir/main.cpp.o  -o OperatingSystemsLab2 
+/usr/bin/c++  -g   CMakeFiles/OperatingSystemsLab2.dir/main.cpp.o CMakeFiles/OperatingSystemsLab2.dir/process.cpp.o  -o OperatingSystemsLab2 

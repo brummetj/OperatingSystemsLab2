@@ -6,6 +6,6 @@ set(CMAKE_CXX_STANDARD 11)
 set(SOURCE_FILES
         container.h
         main.cpp
-        process.h)
+        process.h process.cpp)
 
 add_executable(OperatingSystemsLab2 ${SOURCE_FILES})

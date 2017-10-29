@@ -150,6 +150,33 @@ main.cpp.s:
 	$(MAKE) -f CMakeFiles/OperatingSystemsLab2.dir/build.make CMakeFiles/OperatingSystemsLab2.dir/main.cpp.s
 .PHONY : main.cpp.s
 
+process.o: process.cpp.o
+
+.PHONY : process.o
+
+# target to build an object file
+process.cpp.o:
+	$(MAKE) -f CMakeFiles/OperatingSystemsLab2.dir/build.make CMakeFiles/OperatingSystemsLab2.dir/process.cpp.o
+.PHONY : process.cpp.o
+
+process.i: process.cpp.i
+
+.PHONY : process.i
+
+# target to preprocess a source file
+process.cpp.i:
+	$(MAKE) -f CMakeFiles/OperatingSystemsLab2.dir/build.make CMakeFiles/OperatingSystemsLab2.dir/process.cpp.i
+.PHONY : process.cpp.i
+
+process.s: process.cpp.s
+
+.PHONY : process.s
+
+# target to generate assembly for a file
+process.cpp.s:
+	$(MAKE) -f CMakeFiles/OperatingSystemsLab2.dir/build.make CMakeFiles/OperatingSystemsLab2.dir/process.cpp.s
+.PHONY : process.cpp.s
+
 # Help Target
 help:
 	@echo "The following are some of the valid targets for this Makefile:"
@@ -162,6 +189,9 @@ help:
 	@echo "... main.o"
 	@echo "... main.i"
 	@echo "... main.s"
+	@echo "... process.o"
+	@echo "... process.i"
+	@echo "... process.s"
 .PHONY : help
 
 
