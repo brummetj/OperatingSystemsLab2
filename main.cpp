@@ -9,12 +9,16 @@ using namespace std;
 void sort_burst(list processes);
 void sort_priority(list processes);
 void sort_pid(list processes);
-void statistics(list statistics, string title);
+void statistics(list statistics, const string &title, int quantum);
 void cpu_scheduling_menu();
-list get_processes(string filename);
+list get_processes(const string &filename);
 
 void first_come_first_serve(const string &input_file, const string &output_file){
 
+
+    /* *
+     * Required Simulation fields
+     * */
     list processes = get_processes(input_file);
     string title = "First Come First Serve";
     int num_completed = 0;
@@ -28,10 +32,7 @@ void first_come_first_serve(const string &input_file, const string &output_file)
         index = processes.size();
         for(int i = 0; i < index; i++){
 
-            if(processes.index(i).get_arrival() <= clock){
-                cout << "[time " << processes.index(i).get_arrival() << "ms] PID - " << processes.index(i).get_pid() <<
-                          " created (requires " << processes.index(i).get_burst() << "ms CPU time)";
-                cout << endl;
+            if(processes.index(i).get_arrival() <= clock){   //Insert process into ready queue when it arrives
                 queue.insert_end(processes.index(i));
                 processes.delete_first();
                 index--;
@@ -40,20 +41,18 @@ void first_come_first_serve(const string &input_file, const string &output_file)
         }
         if(queue.size() != 0){
 
-            if(!queue.index(0).get_seen()){
+            if(!queue.index(0).get_seen()){       //If process has not been seen by the CPU. Let CPU know and calculate arrival time.
 
                 double arrival = clock - queue.index(0).get_arrival();
                 process temp = queue.index(0);
                 temp.seen(arrival);
                 queue.edit(0,temp);
-                cout << "[time " << clock << "ms] Process " << queue.index(0).get_pid() <<
-                     " accessed CPU for the first time (initial wait time " << queue.index(0).get_initial_wait() << "ms)" << endl;
             }
 
-            process temp = queue.index(0);
+            process temp = queue.index(0);      //Decrement Bust time with the first process in the queue. (Playing process).
             temp.dec_burst();
             queue.edit(0, temp);
-            if(queue.index(0).get_burst_left() == 0){
+            if(queue.index(0).get_burst_left() == 0){      //If process burst time is finished, calculate statistics and pop off the queue.
 
                 double wait = ((clock +1 ) - queue.index(0).get_burst() - queue.index(0).get_arrival());
                 double finish = clock + 1;
@@ -65,24 +64,23 @@ void first_come_first_serve(const string &input_file, const string &output_file)
                 insert.setResponse_time(response);
                 insert.setTurnaround_time(turnAround);
                 queue.edit(0, insert);
-                cout << "[time " << clock + 1 << "ms] Process " << queue.index(0).get_pid() <<
-                     " completed its CPU burst (turnaround time " << ((clock +1) - queue.index(0).get_arrival()) << "ms, initial wait time "
-                     << queue.index(0).get_initial_wait() << "ms, response time " << wait << "ms)" << endl;
-                stats.insert_start(queue.index(0));
-                queue.delete_first();
+                stats.insert_start(queue.index(0));     //Stats list for statistics
+                queue.delete_first();                   //Remove the head of the queue for next process.
                 num_completed++;
             }
 
         }
         clock++;
     }
-    statistics(stats, title);
+    statistics(stats, title, 0);
 }
 
 void shortest_remaining_job_first(const string &input_file, const string &output_file) {
 
+    /* *
+     * Required Simulation fields
+     * */
     list processes = get_processes(input_file);
-
     string title = "Shortest Remaining Job First";
     int num_completed = 0;
     double clock = 0;
@@ -95,27 +93,20 @@ void shortest_remaining_job_first(const string &input_file, const string &output
         index = processes.size();
         for(int i = 0; i < index; i++){
 
-            if(processes.index(i).get_arrival() <= clock){
-                cout << "[time " << clock  << "ms] PID - " << processes.index(i).get_pid() <<
-                          " created (requires " << processes.index(i).get_burst() << "ms CPU time)";
-                cout << endl;
+            if(processes.index(i).get_arrival() <= clock){      //Insert process into ready queue when it arrives
                 if(queue.size() !=0 &&
-                        processes.index(i).get_burst() < queue.index(0).get_burst() &&
-                        queue.index(0).get_burst_left() != queue.index(0).get_burst()){
+                        processes.index(i).get_burst() < queue.index(0).get_burst() &&    //Compare Burst times, shortest burst time goes first.
+                        queue.index(0).get_burst_left() != queue.index(0).get_burst()){   //Make sure that burst times are not equal to the process in the ready queue.
 
-                    //Context Switch on preemption
-                    cout << "[time " << clock<< "ms] Context switch (swapped out process "
-                         << queue.index(0).get_pid() << " for process " << processes.index(i).get_pid() << ")" << endl;
-                    clock += 0.5;
+                    clock += 0.5;           //Context Switch on preemption. Add 0.5 for each context.
                     process setContext = queue.index(0);
                     setContext.setContext_switch(true);
                     setContext.inc_num_context();
                     queue.edit(0, setContext);
                 }
-                queue.insert_end(processes.index(i));
-                sort_burst(queue);
+                queue.insert_end(processes.index(i)); //insert process into the queue.
+                sort_burst(queue);       //Sort the queue by burst time. shortest remaining burst goes first!
 
-                //Arrival First!
                 processes.delete_first();
                 index--;
                 i--;
@@ -123,42 +114,34 @@ void shortest_remaining_job_first(const string &input_file, const string &output
         }
         if (queue.size() != 0) {
 
-            if (!queue.index(0).get_seen()) {
+            if (!queue.index(0).get_seen()) {     //if process in ready queue has not been seen, let the CPU know it has arrived.
 
-                if(queue.size() > 1 && queue.index(0).get_burst_left() == queue.index(1).get_burst_left()){
-                    if(queue.index(0).get_arrival() > queue.index(1).get_arrival()){
+                if(queue.size() > 1 && queue.index(0).get_burst_left() == queue.index(1).get_burst_left()){   //If queue processes have equal burst time, compare arrival times.
+                    if(queue.index(0).get_arrival() > queue.index(1).get_arrival()){                          //Processes who came first need to go first!
                         process t1 = queue.index(0);
                         process t2 = queue.index(1);
                         queue.edit(0, t2);
                         queue.edit(1, t1);
                     }
                 }
-                if(!queue.index(0).isContext_switch()){
+                if(!queue.index(0).isContext_switch()){     //Calculate the arrival time if there has not been a context switch already.
                     double arrival = clock - queue.index(0).get_arrival();
                     process edit = queue.index(0);
                     edit.seen(arrival);
                     queue.edit(0, edit);
-                    cout << "[time " << clock << "ms] Process " << queue.index(0).get_pid() <<
-                         " accessed CPU for the first time (initial wait time " << queue.index(0).get_initial_wait()
-                         << "ms)" << endl;
                 }
             }
 
-
-            process t = queue.index(0);
+            process t = queue.index(0);    //Dec playing process burst time.
             t.dec_burst();
             queue.edit(0, t);
 
-
-            if (queue.index(0).get_burst_left() == 0) {
+            if (queue.index(0).get_burst_left() == 0) {       //Calculate the statistics, add the stats list, and remove head of the queue.
 
                 double wait = ((clock + 1) - queue.index(0).get_burst() - queue.index(0).get_arrival());
 
                 if(queue.index(0).isContext_switch()){
-                    process initial = queue.index(0);
-                    initial.setInitial_wait(wait);
-                    queue.edit(0, initial);
-                    wait = queue.index(0).get_arrival();
+                    wait = queue.index(0).getInitial_wait();
                 }
 
                 double finish = clock + 1;
@@ -171,11 +154,6 @@ void shortest_remaining_job_first(const string &input_file, const string &output
                 insert.setTurnaround_time(turnAround);
                 queue.edit(0, insert);
 
-                cout << "[time " << clock + 1  << "ms] Process " << queue.index(0).get_pid() <<
-                     " completed its CPU burst (turnaround time " << ((clock + 1) - queue.index(0).get_arrival())
-                     << "ms, initial wait time "
-                     << queue.index(0).get_initial_wait() << "ms, response time " << wait << "ms)" << endl;
-
                 stats.insert_start(queue.index(0));
                 queue.delete_first();
                 num_completed++;
@@ -184,12 +162,14 @@ void shortest_remaining_job_first(const string &input_file, const string &output
         clock++;
     }
 
-    statistics(stats, title);
+    statistics(stats, title, 0);
 }
 
 void round_robin(const string &input_file, const string &output_file, int quantum_time){
 
-
+    /* *
+     * Required Simulation fields
+     * */
     list processes = get_processes(input_file);
     string title = "Round Robin";
     int num_completed = 0;
@@ -199,42 +179,47 @@ void round_robin(const string &input_file, const string &output_file, int quantu
     list stats;
     int num_processes = processes.size();
     int time_slice = 0;
+
     while(num_completed != num_processes){
         index = processes.size();
         for(int i = 0; i < index; i++){
 
-            if(processes.index(i).get_arrival() <= clock){
-                cout << "[time " << processes.index(i).get_arrival() << "ms] PID - " << processes.index(i).get_pid() <<
-                          " created (requires " << processes.index(i).get_burst() << "ms CPU time)";
-                cout << endl;
+            if(processes.index(i).get_arrival() <= clock){     //Insert process into ready queue when it arrives
                 queue.insert_end(processes.index(i));
                 processes.delete_first();
                 index--;
                 i--;
             }
         }
+        if(time_slice == quantum_time){         //If time_slice == declared quantum time, add a context switch, put process
+                                                //at the end of the queue and delete it off the front of the queue.
+            process setContext = queue.index(0);
+            clock = clock + 0.5;
+            setContext.setContext_switch(true);
+            setContext.inc_num_context();
+            queue.edit(0, setContext);
+            queue.insert_end(queue.index(0));
+            queue.delete_first();
+            time_slice = 0;
+        }
         if(queue.size() != 0){
 
-            if(!queue.index(0).get_seen()){
+            if(!queue.index(0).get_seen()){    //If process has not been seen yet, let the CPU know and calculate arrival time.
 
                 if(!queue.index(0).isContext_switch()){
                     double arrival = clock - queue.index(0).get_arrival();
                     process edit = queue.index(0);
                     edit.seen(arrival);
                     queue.edit(0, edit);
-                    cout << "[time " << clock << "ms] Process " << queue.index(0).get_pid() <<
-                         " accessed CPU for the first time (initial wait time " << queue.index(0).get_initial_wait()
-                         << "ms)" << endl;
                 }
             }
 
-            process temp = queue.index(0);
+            process temp = queue.index(0);  //Dec playing process in the ready queue.
             temp.dec_burst();
             queue.edit(0, temp);
-            time_slice++;
-            if(queue.index(0).get_burst_left() == 0){
+            if(queue.index(0).get_burst_left() == 0){   //Calculate statistics, add the stats list, and delete off the front of the queue.
 
-                double wait = ((clock +1 ) - queue.index(0).get_burst() - queue.index(0).get_arrival());
+                double wait = ((clock + 1 ) - queue.index(0).get_burst() - queue.index(0).get_arrival());
                 double finish = clock + 1;
                 double turnAround = ((clock +1) - queue.index(0).get_arrival());
 
@@ -245,46 +230,33 @@ void round_robin(const string &input_file, const string &output_file, int quantu
                 insert.setInitial_wait(wait);
                 queue.edit(0, insert);
 
-                cout << "[time " << clock + 1  << "ms] Process " << queue.index(0).get_pid() <<
-                     " completed its CPU burst (turnaround time " << ((clock + 1) - queue.index(0).get_arrival())
-                     << "ms, initial wait time "
-                     << wait << "ms, response time " << queue.index(0).getResponse_time() << "ms)" << endl;
-
+                clock++;
                 stats.insert_start(queue.index(0));
                 queue.delete_first();
                 time_slice = 0;
                 num_completed++;
-            }
-            else if(time_slice == quantum_time){
-                int last_pid = queue.index(0).get_pid();
-                process setContext = queue.index(0);
-                clock = clock + 0.5;
-                setContext.setContext_switch(true);
-                setContext.inc_num_context();
-                queue.edit(0, setContext);
-                queue.insert_end(queue.index(0));
-                queue.delete_first();
-                cout << "[time " << clock + 1 << "ms] Context switch (swapped out process " << last_pid << " for process " << queue.index(0).get_pid() << ")" << endl;
-                time_slice = 0;
+                continue;
+
             }
         }
         clock++;
+        time_slice++;
     }
 
-    statistics(stats, title);
+    statistics(stats, title, time_slice);
 }
 
-void preemptive_priority(const string &input_file, const string &output_file) {
+void preemptive_priority(const string &input_file, const string &output_file) {     //Priority Algorithm is the same as SRJF, except with priority instead of burst time.
 
+    /* *
+     * Required Simulation fields
+     * */
     list processes = get_processes(input_file);
     string title = "Preemptive Priority";
     int num_completed = 0;
     double clock = 0;
-    double total_wait;
-    int last_pid = 0;
     list queue;
     list stats;
-    bool cswitch = false;
     int index;
     int num_processes = processes.size();
 
@@ -292,27 +264,20 @@ void preemptive_priority(const string &input_file, const string &output_file) {
         index = processes.size();
         for(int i = 0; i < index; i++){
 
-            if(processes.index(i).get_arrival() <= clock){
-                cout << "[time " << clock  << "ms] PID - " << processes.index(i).get_pid() <<
-                          " created (requires " << processes.index(i).get_burst() << "ms CPU time)";
-                cout << endl;
-                if(queue.size() !=0 &&
+            if(processes.index(i).get_arrival() <= clock){    //Check to see if a process has arrived.. add to the queue if it has.
+                if(queue.size() !=0 &&                        //Check to see which process has the higher priority.
                    processes.index(i).get_priority() < queue.index(0).get_priority() &&
                    queue.index(0).get_burst_left() != queue.index(0).get_burst()){
 
-                    //Context Switch on preemption
-                    cout << "[time " << clock<< "ms] Context switch (swapped out process "
-                         << queue.index(0).get_pid() << " for process " << processes.index(i).get_pid() << ")" << endl;
-                    clock += 0.5;
-                    process setContext = queue.index(0);
+                    clock += 0.5;                                         //Context Switch on preemption
+                    process setContext = queue.index(0);                 //set context switch for process
                     setContext.inc_num_context();
                     setContext.setContext_switch(true);
                     queue.edit(0, setContext);
                 }
-                queue.insert_end(processes.index(i));
+                queue.insert_end(processes.index(i));        //insert into queue, sort queue by priority.
                 sort_priority(queue);
 
-                //Arrival First!
                 processes.delete_first();
                 index--;
                 i--;
@@ -335,9 +300,6 @@ void preemptive_priority(const string &input_file, const string &output_file) {
                     process edit = queue.index(0);
                     edit.seen(arrival);
                     queue.edit(0, edit);
-                    cout << "[time " << clock << "ms] Process " << queue.index(0).get_pid() <<
-                         " accessed CPU for the first time (initial wait time " << queue.index(0).get_initial_wait()
-                         << "ms)" << endl;
                 }
             }
 
@@ -352,10 +314,7 @@ void preemptive_priority(const string &input_file, const string &output_file) {
                 double wait = ((clock + 1) - queue.index(0).get_burst() - queue.index(0).get_arrival());
 
                 if(queue.index(0).isContext_switch()){
-                    process initial = queue.index(0);
-                    initial.setInitial_wait(wait);
-                    queue.edit(0, initial);
-                    wait = queue.index(0).get_arrival();
+                    wait = queue.index(0).getInitial_wait();
                 }
 
                 double finish = clock + 1;
@@ -368,13 +327,7 @@ void preemptive_priority(const string &input_file, const string &output_file) {
                 insert.setTurnaround_time(turnAround);
                 queue.edit(0, insert);
 
-                cout << "[time " << clock + 1  << "ms] Process " << queue.index(0).get_pid() <<
-                     " completed its CPU burst (turnaround time " << ((clock + 1) - queue.index(0).get_arrival())
-                     << "ms, initial wait time "
-                     << queue.index(0).get_initial_wait() << "ms, response time " << wait << "ms)" << endl;
                 stats.insert_start(queue.index(0));
-                last_pid = queue.index(0).get_pid();
-                double turn = ((clock + 1) - queue.index(0).get_arrival());
                 queue.delete_first();
                 num_completed++;
             }
@@ -382,7 +335,7 @@ void preemptive_priority(const string &input_file, const string &output_file) {
         clock++;
     }
 
-    statistics(stats, title);
+    statistics(stats, title, 0);
 
 }
 
@@ -397,50 +350,63 @@ int main()
 void cpu_scheduling_menu(){
 
     bool menu = true;
+    bool _switch = true;
+    string input_file, output_file; int algorithm;
     do {
-        string input_file, output_file; int algorithm;
-        cout << "-------CPU Scheduling Simulation-------\n\n";
-        cout << "Main Menu: \n";
-        cout << "Please enter your the name of the test file -> ";
-        cin >> input_file;
-        cout << "\nPlease enter the name of the output file -> ";
-        cin >> output_file;
+        if(_switch){
+
+            cout << "\n\n-------CPU Scheduling Simulation-------\n\n";
+            cout << "Main Menu: \n";
+            cout << "Please enter your the name of the test file -> ";
+            cin >> input_file;
+        }
         cout << "\nAlgorithms:";
         cout << "\nFirst Come First Serve - 0";
         cout << "\nShortest Remaining Time First - 1";
         cout << "\nRound Robin - 2";
         cout << "\nPriority - 3";
-        cout << "\n\nPlease enter the number of the algorithm to simulate, any other # will quit the program: ";
+        cout << "\nChange input file - 4";
+        cout << "\nChange output file - 5";
+        cout << "\n\nPlease enter the number of the algorithm to simulate, or change input/output file, any other # will quit the program: ";
         cin >> algorithm;
 
         switch(algorithm){
 
             case 0: {
                 first_come_first_serve(input_file, output_file);
+                _switch = false;
                 break;
             }
             case 1: {
                 shortest_remaining_job_first(input_file, output_file);
+                _switch = false;
                 break;
             }
             case 2: {
                 int time_slice;
-                cout << "\n Enter the quantum time: ";
+                cout << "\nEnter the quantum time: ";
                 cin >> time_slice;
                 round_robin(input_file, output_file, time_slice);
+                _switch = false;
                 break;
             }
             case 3: {
                 preemptive_priority(input_file, output_file);
+                _switch = false;
                 break;
+            }
+            case 4: {
+                cout << "\nPlease enter your the name of the test file -> ";
+                cin >> input_file;
+                _switch = false;
             }
             default: menu = false;
         }
-    } while (!menu);
+    } while (menu);
 
 }
 
-list get_processes(string filename){
+list get_processes(const string &filename){
 
     ifstream fileIn;
 
@@ -454,12 +420,11 @@ list get_processes(string filename){
         return processes;   //exit if file not found
 
     }
+    int value;
+    int pid, burstTime, arrivalTime, priority;
+    while (fileIn >> value) {
 
-    while (!fileIn.eof()) {
-
-        int pid, burstTime, arrivalTime, priority;
-
-        fileIn >> pid;
+        pid = value;
 
         fileIn >> arrivalTime;
 
@@ -554,7 +519,7 @@ template<typename T> void printElement(T t, const int& width)
     cout << left << setw(width) << setfill(separator) << t << setw(2) << setfill(' ') << '|';
 }
 
-void statistics(list statistics, string title){
+void statistics(list statistics, const string &title, int quantum){
 
     int name_width = 15;
     double avg_wait = 0;
@@ -563,9 +528,21 @@ void statistics(list statistics, string title){
     double avg_response = 0;
     double total_context = 0;
 
+    
+    if(title == "Round Robin"){
+        cout << "\n----------------------------------------- " << title <<"  ----------------------------------------------------------\n"
+             << "-------------------------- No. of Processes: " << statistics.size()
+             << " | Quantum Time: " << quantum << "------------------------------------------------\n";
+        cout << "-----------------------------------------------------------------------------------------------------------------\n";
+
+    }
+    else{
+        cout << "\n-----------------------------------  " << title <<"  ------------------------------------------------\n"
+             << "----------------------------------   No. of Processes: " << statistics.size()
+             << "   -------------------------------------------------" << endl;
+        cout << "-----------------------------------------------------------------------------------------------------------------\n";
+    }
     sort_pid(statistics);
-    cout << "-----------------------------------------------------------"
-         << "-------------------------------------------------------" << endl;
     printElement("|PID" , 4);
     printElement("|Arrival" , 8);
     printElement("|CPU-Burst", 10);
@@ -617,5 +594,8 @@ void statistics(list statistics, string title){
     cout << endl;
     printElement("|Total Context Switches: ", 30);
     printElement(total_context, 5);
+    cout << "\n___________________________________\n";
+    cout << endl << endl;
+    cout << "Main Menu: \n";
 
 }
